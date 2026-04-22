@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecommerce Teste - Oficial</title>
+    <style>
+        :root { --amz-blue: #131921; --amz-orange: #febd69; --bg: #eaeded; }
+        body { font-family: sans-serif; margin: 0; background: var(--bg); color: #0f1111; }
+
+        /* Header */
+        header { background: var(--amz-blue); color: white; position: sticky; top: 0; z-index: 1000; padding: 10px; }
+        .logo { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .logo span { color: var(--amz-orange); }
+        .search-box { display: flex; background: white; border-radius: 4px; overflow: hidden; height: 40px; }
+        input { flex: 1; border: none; padding: 0 10px; outline: none; font-size: 16px; }
+        .s-btn { background: var(--amz-orange); border: none; padding: 0 15px; cursor: pointer; }
+
+        /* Grid de Produtos */
+        .container { padding: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .card { background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 2px #ccc; cursor: pointer; }
+        
+        /* Imagem corrigida */
+        .img-container { width: 100%; height: 140px; background: #f0f0f0; border-radius: 4px; overflow: hidden; }
+        .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .card h3 { font-size: 13px; height: 32px; overflow: hidden; margin: 8px 0; }
+        .price { font-size: 18px; font-weight: bold; color: #B12704; }
+
+        /* Painel de Detalhes (Modal) */
+        .modal { display: none; position: fixed; inset: 0; background: white; z-index: 2000; padding: 20px; overflow-y: auto; }
+        .close { font-size: 30px; font-weight: bold; cursor: pointer; float: right; }
+        .tech-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .tech-table td { padding: 8px; border-bottom: 1px solid #ddd; font-size: 14px; }
+        .tech-table td:first-child { font-weight: bold; color: #555; width: 40%; }
+        .buy-btn { background: #ffd814; border: 1px solid #fcd200; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; margin-top: 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">Ecommerce<span>Teste</span></div>
+    <div class="search-box">
+        <input type="text" id="q" placeholder="Pesquisar entre 1.000 itens..." oninput="search()">
+        <button class="s-btn">🔍</button>
+    </div>
+</header>
+
+<div class="container" id="grid"></div>
+
+<!-- Modal de Especificações -->
+<div id="modal" class="modal">
+    <span class="close" onclick="closeModal()">✕</span>
+    <div id="modal-content" style="margin-top: 30px;"></div>
+</div>
+
+<script>
+    const db = [];
+    const keywords = ['celular', 'laptop', 'relogio', 'camera'];
+
+    // Gerar 1000 Produtos com links de imagem robustos
+    for(let i=1; i<=1000; i++) {
+        let type = keywords[i % 4];
+        db.push({
+            id: i,
+            name: `${type.toUpperCase()} Pro Modelo X-${i}`,
+            price: (Math.random() * 3000 + 200).toFixed(2),
+            // Link de imagem de alta disponibilidade
+            img: `https://loremflickr.com{i}`,
+            specs: {
+                processador: "Octa-Core 2.8GHz",
+                memoria: i % 2 === 0 ? "128GB SSD" : "256GB SSD",
+                bateria: "5000 mAh (Longa duração)",
+                tela: "6.7 polegadas Super AMOLED",
+                sistema: "Android 14 / Windows 11"
+            }
+        });
+    }
+
+    function render(data) {
+        document.getElementById('grid').innerHTML = data.slice(0, 50).map(p => `
+            <div class="card" onclick="openDetails(${p.id})">
+                <div class="img-container">
+                    <img src="${p.img}" alt="Produto">
+                </div>
+                <h3>${p.name}</h3>
+                <p class="price">R$ ${p.price}</p>
+                <p style="color:#007185; font-size:11px;">Ver especificações ›</p>
+            </div>
+        `).join('');
+    }
+
+    function openDetails(id) {
+        const p = db.find(x => x.id === id);
+        document.getElementById('modal-content').innerHTML = `
+            <img src="${p.img}" style="width:100%; border-radius:8px;">
+            <h2>${p.name}</h2>
+            <p class="price" style="font-size:24px;">R$ ${p.price}</p>
+            
+            <h3>Ficha Técnica:</h3>
+            <table class="tech-table">
+                <tr><td>Processador</td><td>${p.specs.processador}</td></tr>
+                <tr><td>Memória</td><td>${p.specs.memoria}</td></tr>
+                <tr><td>Bateria</td><td>${p.specs.bateria}</td></tr>
+                <tr><td>Tela</td><td>${p.specs.tela}</td></tr>
+                <tr><td>Sistema</td><td>${p.specs.sistema}</td></tr>
+            </table>
+
+            <button class="buy-btn" onclick="alert('Pedido de R$ ${p.price} enviado para a fábrica!')">COMPRAR AGORA</button>
+        `;
+        document.getElementById('modal').style.display = 'block';
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    function search() {
+        const val = document.getElementById('q').value.toLowerCase();
+        render(db.filter(x => x.name.toLowerCase().includes(val)));
+    }
+
+    render(db);
+</script>
+
+</body>
+</html>
